@@ -3,7 +3,7 @@
   <div class="container py-5">
     <h1 class="section-title animate__animated animate__fadeIn">Sobre Nosotros</h1>
     
-    <!-- Misión Section -->
+<!-- Sección de Misión -->
     <div class="row mb-5 pt-3 animate__animated animate__fadeInUp">
       <div class="col-md-5 mb-4 mb-md-0">
         <div class="about-image">
@@ -20,7 +20,7 @@
       </div>
     </div>
     
-    <!-- Visión Section -->
+    <!-- Sección de Visión -->
     <div class="row align-items-center py-4 my-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
       <div class="col-md-7 order-md-1 order-2">
         <div class="about-content">

@@ -5,7 +5,7 @@
         <div class="col-lg-8 col-md-10">
           <div class="success-card animate__animated animate__fadeIn">
             <div class="success-content text-center">
-              <!-- Success Animation -->
+<!-- Animación de éxito -->
               <div class="success-animation mb-4">
                 <div class="checkmark-container">
                   <div class="checkmark animate__animated animate__bounceIn animate__delay-1s">
@@ -15,8 +15,8 @@
                 </div>
               </div>
 
-              <!-- Success Message -->
-              <div class="success-text mb-4">
+<!-- Mensaje de éxito -->
+               <div class="success-text mb-4">
                 <h1 class="success-title animate__animated animate__fadeInUp animate__delay-2s">
                   ¡Pago Exitoso!
                 </h1>
@@ -25,8 +25,8 @@
                 </p>
               </div>
 
-              <!-- Payment Details -->
-              <div class="payment-details animate__animated animate__fadeInUp animate__delay-3s">
+<!-- Detalles del pago -->
+               <div class="payment-details animate__animated animate__fadeInUp animate__delay-3s">
                 <div class="detail-card">
                   <div class="row g-3">
                     <div class="col-md-6">
@@ -82,6 +82,7 @@
               </div>
 
               <!-- Next Steps -->
+
               <div class="next-steps animate__animated animate__fadeInUp animate__delay-5s">
                 <h5 class="mb-3">¿Qué sigue?</h5>
                 <div class="row g-3">
@@ -125,8 +126,8 @@
       </div>
     </div>
 
-    <!-- Confetti Animation -->
-    <div class="confetti-container">
+<!-- Animación de confeti -->
+     <div class="confetti-container">
       <div class="confetti" v-for="n in 50" :key="n" :style="getConfettiStyle(n)"></div>
     </div>
   </div>
@@ -139,7 +140,7 @@ const currentDate = ref('');
 const transactionId = ref('');
 
 onMounted(() => {
-  // Set current date
+  // Establecer la fecha actual
   const now = new Date();
   currentDate.value = now.toLocaleDateString('es-MX', {
     year: 'numeric',
@@ -150,7 +151,7 @@ onMounted(() => {
   // Generate random transaction ID
   transactionId.value = 'TXN' + Math.random().toString(36).substr(2, 9).toUpperCase();
 
-  // Start confetti animation
+  // iniciar la animación de confeti
   setTimeout(() => {
     startConfetti();
   }, 1000);
@@ -188,7 +189,8 @@ const downloadReceipt = () => {
   
   console.log('Descargando recibo:', receiptData);
   
-  // Here you would typically generate and download a PDF receipt
+
+  // se genera el recibo(si lo ponemos)
   alert('Recibo descargado exitosamente');
 };
 </script>

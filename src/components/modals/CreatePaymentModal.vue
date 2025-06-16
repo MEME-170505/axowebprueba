@@ -39,8 +39,8 @@
           </div>
 
           <div class="row">
-            <!-- Payment Assignment -->
-            <div class="col-md-6">
+<!-- Asignación de pago -->
+             <div class="col-md-6">
               <div class="payment-card">
                 <h6 class="mb-3">Asignar Pago</h6>
                 <div class="mb-3">
@@ -68,7 +68,7 @@
               </div>
             </div>
 
-            <!-- Plan/Service Selection -->
+<!-- Selección de plan/servicio -->
             <div class="col-md-6">
               <div class="service-card">
                 <h6 class="mb-3">NOMBRE DE PLAN / SERVICIO</h6>

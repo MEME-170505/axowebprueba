@@ -5,7 +5,7 @@
         <div class="col-lg-8 col-md-10">
           <div class="error-card animate__animated animate__fadeIn">
             <div class="error-content text-center">
-              <!-- Logo with Error Expression -->
+              <!-- logo AxoWeb error -->
               <div class="error-logo-container mb-4">
                 <div class="logo-wrapper">
                   <img
@@ -37,8 +37,8 @@
                 </router-link>
               </div>
 
-              <!-- Helpful Links -->
-              <div class="helpful-links mt-5">
+<!-- Enlaces útiles -->
+               <div class="helpful-links mt-5">
                 <h5 class="mb-3">¿Qué puedes hacer?</h5>
                 <div class="row g-3">
                   <div class="col-md-4">
@@ -67,7 +67,7 @@
       </div>
     </div>
 
-    <!-- Floating Elements -->
+<!-- Elementos flotantes -->
     <div class="floating-elements">
       <div class="floating-element element-1">
         <i class="bi bi-code-slash"></i>

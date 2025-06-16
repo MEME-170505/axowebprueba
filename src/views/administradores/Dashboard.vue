@@ -274,7 +274,7 @@
                 </div>
               </div>
               
-              <!-- Companies List -->
+              <!-- lista de empresas-->
               <div class="company-list">
                 <div 
                   v-for="company in filteredCompanies" 
@@ -315,9 +315,9 @@
           </div>
         </div>
 
-        <!-- Main Content Area -->
+        <!-- contenidop principal-->
         <div class="main-content">
-          <!-- Payment History Table -->
+          <!-- tabla de pagos -->
           <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-light border-0">
               <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -400,7 +400,7 @@
           </div>
         </div>
 
-        <!-- Payment Form Sidebar -->
+        <!--barra de la derecha (formulario)  -->
         <div class="payment-sidebar" :class="{ 'active': showPaymentForm }">
           <div class="sidebar-content">
             <div class="sidebar-header">
@@ -412,7 +412,7 @@
             </div>
 
             <div class="sidebar-body">
-              <!-- User and Company Info -->
+              <!-- informacion del usuario y la empresa -->
               <div class="info-section mb-4">
                 <h6 class="section-title">
                   <i class="bi bi-person me-2"></i>
@@ -447,7 +447,7 @@
                 </div>
               </div>
 
-              <!-- Payment Assignment -->
+              <!-- asignar pago -->
               <div class="info-section mb-4">
                 <h6 class="section-title">
                   <i class="bi bi-currency-dollar me-2"></i>
@@ -516,7 +516,7 @@
                     </div>
                   </div>
 
-                  <!-- Predefined Services -->
+                  <!-- Servicios Predefinidos -->
                   <div v-if="serviceType === 'predefined'" class="mb-3">
                     <label class="form-label">Plan o Servicio</label>
                     <select class="form-select" v-model="paymentForm.planService">
@@ -532,7 +532,7 @@
                     </select>
                   </div>
 
-                  <!-- Custom Services -->
+                  <!-- servicio personalizado -->
                   <div v-if="serviceType === 'custom'" class="mb-3">
                     <label class="form-label">Servicios Personalizados</label>
                     <div class="custom-services-container">
@@ -554,7 +554,7 @@
                         </div>
                       </div>
                       
-                      <!-- Selected Services Summary -->
+                      <!--  listado de servicios seleccionados -->
                       <div v-if="selectedServices.length > 0" class="selected-summary mt-3">
                         <h6 class="mb-2">Servicios Seleccionados:</h6>
                         <div class="selected-list">
@@ -661,7 +661,7 @@ const administrators = ref([]);
 const serviceType = ref('predefined');
 const selectedServices = ref([]);
 
-// Available services for custom selection
+// Servicios disponibles para selección personalizada
 const availableServices = ref([
   { id: 1, name: 'Desarrollo Web', price: 15000 },
   { id: 2, name: 'Diseño UI/UX', price: 8000 },
@@ -675,7 +675,7 @@ const availableServices = ref([
   { id: 10, name: 'Mantenimiento', price: 2000 }
 ]);
 
-// Payment form data
+// datos del formulario de pago
 const paymentForm = ref({
   userName: '',
   contractDate: '',
@@ -688,7 +688,7 @@ const paymentForm = ref({
   paymentType: ''
 });
 
-// Companies data
+// datos de las empresas
 const companies = ref([
   {
     id: 1,
@@ -707,7 +707,7 @@ const companies = ref([
   }
 ]);
 
-// Payments data
+//Datos de los pagos
 const payments = ref([
   {
     id: 1,

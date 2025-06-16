@@ -58,7 +58,7 @@
     </div>
   </section>
 
-  <!-- Belief Section -->
+  <!-- creencia Section -->
   <section class="belief-section">
     <div class="container">
       <div class="row align-items-center">
