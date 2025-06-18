@@ -675,6 +675,9 @@ import { ref, computed, watch } from 'vue';
 import AdminModal from '../../components/modals/AdminModal.vue';
 import PlanModal from '../../components/modals/PlanModal.vue';
 import ServiceModal from '../../components/modals/ServiceModal.vue';
+import { useAlert } from '../../composables/useAlert';
+
+const { showSuccess, showError, showWarning, showInfo, showConfirm } = useAlert();
 
 const activeTab = ref('clientes');
 const searchQuery = ref('');
@@ -842,6 +845,7 @@ const selectCompany = (company) => {
   selectedCompany.value = company;
   paymentForm.value.companyName = company.name;
   paymentForm.value.client = company.client;
+  showInfo('Empresa seleccionada', `Has seleccionado ${company.name}`);
 };
 
 const getCompanyPayments = (companyId) => {
@@ -869,8 +873,13 @@ const formatDate = (dateString) => {
 };
 
 const openPaymentForm = () => {
+  if (!selectedCompany.value) {
+    showWarning('Selecciona una empresa', 'Debes seleccionar una empresa antes de crear un pago');
+    return;
+  }
   showPaymentForm.value = true;
   resetPaymentForm();
+  showInfo('Formulario de pago', 'Completa los datos para crear un nuevo pago');
 };
 
 const closePaymentForm = () => {
@@ -926,16 +935,17 @@ const setPaymentType = (type) => {
   if (type === 'Completo') {
     paymentForm.value.paidAmount = paymentForm.value.totalAmount;
   }
+  showInfo('Tipo de pago seleccionado', `Has seleccionado: ${type}`);
 };
 
 const createPayment = () => {
   if (!selectedCompany.value) {
-    alert('Por favor selecciona una empresa');
+    showError('Error', 'Por favor selecciona una empresa');
     return;
   }
 
   if (!paymentForm.value.userName) {
-    alert('Por favor ingresa el nombre del usuario');
+    showError('Error', 'Por favor ingresa el nombre del usuario');
     return;
   }
 
@@ -944,14 +954,14 @@ const createPayment = () => {
 
   if (serviceType.value === 'predefined') {
     if (!paymentForm.value.planService || !paymentForm.value.totalAmount) {
-      alert('Por favor completa todos los campos requeridos');
+      showError('Error', 'Por favor completa todos los campos requeridos');
       return;
     }
     planName = paymentForm.value.planService;
     amount = parseFloat(paymentForm.value.totalAmount);
   } else {
     if (selectedServices.value.length === 0) {
-      alert('Por favor selecciona al menos un servicio personalizado');
+      showError('Error', 'Por favor selecciona al menos un servicio personalizado');
       return;
     }
     planName = selectedServices.value.map(id => getServiceById(id).name).join(', ');
@@ -959,7 +969,7 @@ const createPayment = () => {
   }
 
   if (!paymentForm.value.paymentType) {
-    alert('Por favor selecciona el tipo de pago');
+    showError('Error', 'Por favor selecciona el tipo de pago');
     return;
   }
 
@@ -984,35 +994,50 @@ const createPayment = () => {
   payments.value.push(newPayment);
   closePaymentForm();
   
-  alert('Pago creado exitosamente');
+  showSuccess('¡Pago creado exitosamente!', `Se ha registrado el pago de $${amount.toLocaleString()} MXN para ${paymentForm.value.userName}`);
 };
 
 const viewPayment = (payment) => {
-  alert(`Ver detalles del pago: ${payment.planName} - $${payment.amount}`);
+  showInfo('Detalles del pago', `${payment.planName} - $${payment.amount.toLocaleString()} MXN`);
 };
 
 const editPayment = (payment) => {
-  alert(`Editar pago: ${payment.planName}`);
+  showInfo('Editar pago', `Editando: ${payment.planName}`);
 };
 
 const saveClient = (client) => {
   console.log('Guardando cliente:', client);
+  showSuccess('Cliente guardado', `Los datos de ${client.name} han sido actualizados`);
 };
 
 const saveAdmin = (adminData) => {
   administrators.value.push(adminData);
+  showSuccess('Administrador creado', `Se ha creado la cuenta para ${adminData.nombre} ${adminData.apellido}`);
 };
 
-const deleteAdmin = (index) => {
-  administrators.value.splice(index, 1);
+const deleteAdmin = async (index) => {
+  const admin = administrators.value[index];
+  const confirmed = await showConfirm(
+    '¿Eliminar administrador?',
+    `¿Estás seguro de que quieres eliminar la cuenta de ${admin.nombre} ${admin.apellido}? Esta acción no se puede deshacer.`,
+    () => {
+      administrators.value.splice(index, 1);
+      showSuccess('Administrador eliminado', 'La cuenta ha sido eliminada exitosamente');
+    },
+    () => {
+      showInfo('Eliminación cancelada', 'La cuenta no ha sido eliminada');
+    }
+  );
 };
 
 const savePlan = (planData) => {
   window.dispatchEvent(new CustomEvent('newPlan', { detail: planData }));
+  showSuccess('Plan creado', `El plan "${planData.nombre}" ha sido creado exitosamente`);
 };
 
 const saveService = (serviceData) => {
   window.dispatchEvent(new CustomEvent('newService', { detail: serviceData }));
+  showSuccess('Servicio creado', `El servicio "${serviceData.title}" ha sido creado exitosamente`);
 };
 </script>
 

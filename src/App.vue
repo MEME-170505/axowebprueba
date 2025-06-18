@@ -7,12 +7,18 @@
     </transition>
   </router-view>
   <Footer />
+  
+  <!-- Global Alert System -->
+  <CustomAlert ref="alertComponent" />
+  <ConfirmDialog />
 </div>
 </template>
 
 <script setup>
 import Navbar from './components/Navbar.vue'
 import Footer from './components/Footer.vue'
+import CustomAlert from './components/CustomAlert.vue'
+import ConfirmDialog from './components/ConfirmDialog.vue'
 </script>
 
 <style>

@@ -196,9 +196,11 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import { useRouter } from 'vue-router'
+import { useAlert } from '../../composables/useAlert'
 
 const authStore = useAuthStore()
 const router = useRouter()
+const { showSuccess, showError, showWarning, showConfirm } = useAlert()
 
 // Redirect if not authenticated or not a client
 onMounted(() => {
@@ -247,6 +249,7 @@ const planes = ref([
 
 const toggleEdit = () => {
   isEditing.value = true
+  showInfo('Modo de edición activado', 'Ahora puedes modificar tus datos personales')
 }
 
 const cancelEdit = () => {
@@ -257,13 +260,15 @@ const cancelEdit = () => {
   userData.telefono = authStore.user?.phone || '123-456-7890'
   userData.email = authStore.user?.email || 'mario@ejemplo.com'
   userData.empresa = authStore.user?.company || 'Empresa S.A. de C.V.'
+  
+  showWarning('Cambios cancelados', 'Se han restaurado los datos originales')
 }
 
 const saveData = () => {
   isEditing.value = false
   // Here you would typically save to a backend
   console.log('Saving user data:', userData)
-  alert('Datos guardados exitosamente')
+  showSuccess('¡Datos guardados!', 'Tu información personal ha sido actualizada correctamente')
 }
 
 const getStatusClass = (estado) => {
@@ -282,14 +287,21 @@ const getStatusClass = (estado) => {
 
 const renovarPlan = (plan) => {
   console.log('Renovar plan:', plan.nombre)
-  alert(`Renovando plan: ${plan.nombre}`)
+  showSuccess('Plan renovado', `El plan "${plan.nombre}" ha sido renovado exitosamente`)
 }
 
-const cancelarPlan = (plan) => {
-  if (confirm(`¿Estás seguro de que quieres cancelar el plan: ${plan.nombre}?`)) {
-    console.log('Cancelar plan:', plan.nombre)
-    alert(`Plan cancelado: ${plan.nombre}`)
-  }
+const cancelarPlan = async (plan) => {
+  const confirmed = await showConfirm(
+    '¿Cancelar plan?',
+    `¿Estás seguro de que quieres cancelar el plan "${plan.nombre}"? Esta acción no se puede deshacer.`,
+    () => {
+      console.log('Cancelar plan:', plan.nombre)
+      showSuccess('Plan cancelado', `El plan "${plan.nombre}" ha sido cancelado`)
+    },
+    () => {
+      showInfo('Cancelación abortada', 'El plan no ha sido cancelado')
+    }
+  )
 }
 </script>
 
