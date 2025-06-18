@@ -348,6 +348,7 @@
                 <table class="table align-middle mb-0">
                   <thead class="table-light">
                     <tr>
+                      <th>Usuario</th>
                       <th>Plan/Servicio</th>
                       <th>Monto</th>
                       <th>Estado</th>
@@ -358,6 +359,12 @@
                   </thead>
                   <tbody>
                     <tr v-for="payment in getCompanyPayments(selectedCompany.id)" :key="payment.id">
+                      <td>
+                        <div class="user-info">
+                          <i class="bi bi-person-circle me-2 text-primary"></i>
+                          {{ payment.userName || 'N/A' }}
+                        </div>
+                      </td>
                       <td>
                         <div class="plan-info">
                           <i class="bi bi-box me-2 text-primary"></i>
@@ -388,7 +395,7 @@
                       </td>
                     </tr>
                     <tr v-if="getCompanyPayments(selectedCompany.id).length === 0">
-                      <td colspan="6" class="text-center py-4 text-muted">
+                      <td colspan="7" class="text-center py-4 text-muted">
                         <i class="bi bi-inbox me-2"></i>
                         No hay pagos registrados para esta empresa
                       </td>
@@ -447,50 +454,6 @@
                 </div>
               </div>
 
-              <!-- asignar pago -->
-              <div class="info-section mb-4">
-                <h6 class="section-title">
-                  <i class="bi bi-currency-dollar me-2"></i>
-                  Asignar Pago
-                </h6>
-                <div class="payment-card">
-                  <div class="mb-3">
-                    <label class="form-label">Monto Total</label>
-                    <div class="input-group">
-                      <span class="input-group-text">$</span>
-                      <input 
-                        type="number" 
-                        class="form-control" 
-                        v-model="paymentForm.totalAmount"
-                        placeholder="0.00"
-                      >
-                      <span class="input-group-text">MXN</span>
-                    </div>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Abonado</label>
-                    <div class="input-group">
-                      <span class="input-group-text">$</span>
-                      <input 
-                        type="number" 
-                        class="form-control" 
-                        v-model="paymentForm.paidAmount"
-                        placeholder="0.00"
-                      >
-                      <span class="input-group-text">MXN</span>
-                    </div>
-                  </div>
-                  <div class="payment-summary" v-if="paymentForm.totalAmount && paymentForm.paidAmount">
-                    <div class="d-flex justify-content-between">
-                      <span>Restante:</span>
-                      <span class="fw-bold text-warning">
-                        ${{ (paymentForm.totalAmount - paymentForm.paidAmount).toLocaleString() }} MXN
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               <!-- Plan/Service Selection -->
               <div class="info-section mb-4">
                 <h6 class="section-title">
@@ -519,7 +482,7 @@
                   <!-- Servicios Predefinidos -->
                   <div v-if="serviceType === 'predefined'" class="mb-3">
                     <label class="form-label">Plan o Servicio</label>
-                    <select class="form-select" v-model="paymentForm.planService">
+                    <select class="form-select" v-model="paymentForm.planService" @change="updatePredefinedPrice">
                       <option value="">Seleccionar plan o servicio</option>
                       <option value="Plan Huevo">Plan Huevo - $15,000</option>
                       <option value="Plan Ajolote">Plan Ajolote - $25,000</option>
@@ -590,13 +553,78 @@
                       placeholder="Nombre del cliente"
                     >
                   </div>
+                </div>
+              </div>
+
+              <!-- asignar pago -->
+              <div class="info-section mb-4">
+                <h6 class="section-title">
+                  <i class="bi bi-currency-dollar me-2"></i>
+                  Asignar Pago
+                </h6>
+                <div class="payment-card">
                   <div class="mb-3">
-                    <label class="form-label">Tipo de Pago</label>
-                    <select class="form-select" v-model="paymentForm.paymentType">
-                      <option value="">Seleccionar tipo de pago</option>
-                      <option value="Completo">Completo</option>
-                      <option value="Abono">Abono</option>
-                    </select>
+                    <label class="form-label">Monto Total</label>
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      <input 
+                        type="number" 
+                        class="form-control" 
+                        v-model="paymentForm.totalAmount"
+                        placeholder="0.00"
+                        readonly
+                      >
+                      <span class="input-group-text">MXN</span>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Abonado</label>
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      <input 
+                        type="number" 
+                        class="form-control" 
+                        v-model="paymentForm.paidAmount"
+                        placeholder="0.00"
+                      >
+                      <span class="input-group-text">MXN</span>
+                    </div>
+                  </div>
+                  <div class="payment-summary" v-if="paymentForm.totalAmount && paymentForm.paidAmount">
+                    <div class="d-flex justify-content-between">
+                      <span>Restante:</span>
+                      <span class="fw-bold text-warning">
+                        ${{ (paymentForm.totalAmount - paymentForm.paidAmount).toLocaleString() }} MXN
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Botones de Pago -->
+                  <div class="payment-buttons mt-4">
+                    <div class="row g-2">
+                      <div class="col-6">
+                        <button 
+                          type="button" 
+                          class="btn btn-success w-100"
+                          @click="setPaymentType('Completo')"
+                          :class="{ 'active': paymentForm.paymentType === 'Completo' }"
+                        >
+                          <i class="bi bi-check-circle me-1"></i>
+                          Liquidar
+                        </button>
+                      </div>
+                      <div class="col-6">
+                        <button 
+                          type="button" 
+                          class="btn btn-warning w-100"
+                          @click="setPaymentType('Abono')"
+                          :class="{ 'active': paymentForm.paymentType === 'Abono' }"
+                        >
+                          <i class="bi bi-cash me-1"></i>
+                          Abono
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -643,7 +671,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import AdminModal from '../../components/modals/AdminModal.vue';
 import PlanModal from '../../components/modals/PlanModal.vue';
 import ServiceModal from '../../components/modals/ServiceModal.vue';
@@ -674,6 +702,18 @@ const availableServices = ref([
   { id: 9, name: 'Consultoría', price: 3000 },
   { id: 10, name: 'Mantenimiento', price: 2000 }
 ]);
+
+// Precios predefinidos
+const predefinedPrices = {
+  'Plan Huevo': 15000,
+  'Plan Ajolote': 25000,
+  'Plan Alebrije': 0, // Personalizado
+  'Desarrollo de Ecommerce': 8000,
+  'Email Marketing': 5000,
+  'Marketing Digital': 8000,
+  'Diseño UI/UX': 8000,
+  'Automatización': 8000
+};
 
 // datos del formulario de pago
 const paymentForm = ref({
@@ -712,6 +752,7 @@ const payments = ref([
   {
     id: 1,
     companyId: 1,
+    userName: 'Juan Pérez',
     planName: 'Plan Ajolote',
     amount: 25000,
     status: 'Pagado',
@@ -721,6 +762,7 @@ const payments = ref([
   {
     id: 2,
     companyId: 1,
+    userName: 'Ana López',
     planName: 'Marketing Digital',
     amount: 8000,
     status: 'Pendiente',
@@ -730,6 +772,7 @@ const payments = ref([
   {
     id: 3,
     companyId: 2,
+    userName: 'María García',
     planName: 'Plan Huevo',
     amount: 15000,
     status: 'Pagado',
@@ -739,6 +782,7 @@ const payments = ref([
   {
     id: 4,
     companyId: 3,
+    userName: 'Carlos López',
     planName: 'Desarrollo de Ecommerce',
     amount: 8000,
     status: 'Liquidado',
@@ -787,6 +831,13 @@ const filteredCompanies = computed(() => {
   });
 });
 
+// Watch para actualizar el precio total cuando cambian los servicios seleccionados
+watch([selectedServices, serviceType], () => {
+  if (serviceType.value === 'custom') {
+    paymentForm.value.totalAmount = calculateTotal();
+  }
+}, { deep: true });
+
 const selectCompany = (company) => {
   selectedCompany.value = company;
   paymentForm.value.companyName = company.name;
@@ -801,11 +852,12 @@ const getStatusBadgeClass = (status) => {
   const baseClasses = 'badge rounded-pill';
   switch (status) {
     case 'Pagado':
+    case 'Liquidado':
       return `${baseClasses} bg-success`;
     case 'Pendiente':
+      return `${baseClasses} bg-danger`;
+    case 'Abono':
       return `${baseClasses} bg-warning`;
-    case 'Liquidado':
-      return `${baseClasses} bg-info`;
     default:
       return baseClasses;
   }
@@ -842,6 +894,13 @@ const resetPaymentForm = () => {
   selectedServices.value = [];
 };
 
+const updatePredefinedPrice = () => {
+  const selectedPlan = paymentForm.value.planService;
+  if (selectedPlan && predefinedPrices[selectedPlan] !== undefined) {
+    paymentForm.value.totalAmount = predefinedPrices[selectedPlan];
+  }
+};
+
 const toggleService = (serviceId) => {
   const index = selectedServices.value.indexOf(serviceId);
   if (index > -1) {
@@ -862,9 +921,21 @@ const calculateTotal = () => {
   }, 0);
 };
 
+const setPaymentType = (type) => {
+  paymentForm.value.paymentType = type;
+  if (type === 'Completo') {
+    paymentForm.value.paidAmount = paymentForm.value.totalAmount;
+  }
+};
+
 const createPayment = () => {
   if (!selectedCompany.value) {
     alert('Por favor selecciona una empresa');
+    return;
+  }
+
+  if (!paymentForm.value.userName) {
+    alert('Por favor ingresa el nombre del usuario');
     return;
   }
 
@@ -887,12 +958,25 @@ const createPayment = () => {
     amount = calculateTotal();
   }
 
+  if (!paymentForm.value.paymentType) {
+    alert('Por favor selecciona el tipo de pago');
+    return;
+  }
+
+  let status = 'Pendiente';
+  if (paymentForm.value.paymentType === 'Completo') {
+    status = 'Pagado';
+  } else if (paymentForm.value.paidAmount > 0) {
+    status = 'Abono';
+  }
+
   const newPayment = {
     id: payments.value.length + 1,
     companyId: selectedCompany.value.id,
+    userName: paymentForm.value.userName,
     planName: planName,
     amount: amount,
-    status: paymentForm.value.paymentType === 'Completo' ? 'Pagado' : 'Pendiente',
+    status: status,
     date: new Date().toISOString().split('T')[0],
     purchaseId: 'TXN' + Math.random().toString(36).substr(2, 9).toUpperCase()
   };
@@ -1144,7 +1228,8 @@ const saveService = (serviceData) => {
   opacity: 0.5;
 }
 
-.plan-info {
+.plan-info,
+.user-info {
   display: flex;
   align-items: center;
 }
@@ -1253,6 +1338,25 @@ const saveService = (serviceData) => {
   border-radius: 8px;
   margin-top: 1rem;
   border: 1px solid #dee2e6;
+}
+
+.payment-buttons .btn {
+  transition: all 0.3s ease;
+}
+
+.payment-buttons .btn.active {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.payment-buttons .btn-success.active {
+  background-color: #198754;
+  border-color: #198754;
+}
+
+.payment-buttons .btn-warning.active {
+  background-color: #fd7e14;
+  border-color: #fd7e14;
 }
 
 /* Custom Services Styles */
@@ -1462,6 +1566,11 @@ const saveService = (serviceData) => {
   .service-card {
     padding: 1rem;
   }
+
+  .payment-buttons .btn {
+    font-size: 0.875rem;
+    padding: 0.5rem;
+  }
 }
 
 @media (max-width: 576px) {
@@ -1479,6 +1588,15 @@ const saveService = (serviceData) => {
     flex-direction: column;
     gap: 0.5rem;
     text-align: center;
+  }
+
+  .payment-buttons .row {
+    flex-direction: column;
+  }
+
+  .payment-buttons .col-6 {
+    width: 100%;
+    margin-bottom: 0.5rem;
   }
 }
 </style>

@@ -1,12 +1,13 @@
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
+import { createPinia } from 'pinia'
 import App from './App.vue'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import 'animate.css'
 import './style.css'
 
-// Import routes
+// Importa las vistas
 import Home from './views/Home.vue'
 import Services from './views/Services.vue'
 import About from './views/About.vue'
@@ -18,14 +19,31 @@ import Marketing from './views/ofertas/Marketing.vue'
 import Error404 from './views/Error404.vue'
 import PaymentSuccess from './views/PaymentSuccess.vue'
 
-// Define routes
+// Crea Pinia y App primero
+const app = createApp(App)
+const pinia = createPinia()
+
+app.use(pinia)
+
+// Importa el store *DESPUÉS* de usar pinia
+import { useAuthStore } from './stores/auth'
+
+// Define rutas
 const routes = [
   { path: '/', component: Home },
   { path: '/servicios', component: Services },
   { path: '/sobre-nosotros', component: About },
   { path: '/contactanos', component: Contact },
-  { path: '/cliente', component: Cliente },
-  { path: '/admin', component: Dashboard },
+  { 
+    path: '/cliente', 
+    component: Cliente,
+    meta: { requiresAuth: true, role: 'client' }
+  },
+  { 
+    path: '/admin', 
+    component: Dashboard,
+    meta: { requiresAuth: true, role: 'admin' }
+  },
   { path: '/ecommerce', component: Ecommerce },
   { path: '/marketing-digital', component: Marketing },
   { path: '/pago-exitoso', component: PaymentSuccess },
@@ -33,16 +51,29 @@ const routes = [
   { path: '/:pathMatch(.*)*', redirect: '/404' }
 ]
 
-// Create router
+// Crea router
 const router = createRouter({
   history: createWebHistory(),
   routes,
-  scrollBehavior() {
-    return { top: 0 }
-  }
+  scrollBehavior: () => ({ top: 0 })
 })
 
-// Create app
-const app = createApp(App)
+// Guarda de navegación
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore() // ahora sí funciona porque ya existe pinia
+
+  if (to.meta.requiresAuth) {
+    if (!authStore.isAuthenticated) {
+      return next('/')
+    }
+
+    if (to.meta.role && authStore.user.role !== to.meta.role) {
+      return next('/')
+    }
+  }
+
+  next()
+})
+
 app.use(router)
 app.mount('#app')

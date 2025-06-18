@@ -4,7 +4,7 @@
       <div class="user-icon mb-3">
         <i class="bi bi-people-fill fs-1"></i>
       </div>
-      <h2 class="fw-bold">Nombre De Usuario</h2>
+      <h2 class="fw-bold">{{ authStore.user?.name || 'Usuario' }}</h2>
     </div>
 
     <!-- Navigation Tabs -->
@@ -15,6 +15,7 @@
           :class="{ 'active': activeTab === 'inicio' }"
           @click="activeTab = 'inicio'"
         >
+          <i class="bi bi-house me-2"></i>
           Inicio
         </button>
         <button 
@@ -22,6 +23,7 @@
           :class="{ 'active': activeTab === 'servicios' }"
           @click="activeTab = 'servicios'"
         >
+          <i class="bi bi-grid me-2"></i>
           Servicios
         </button>
       </div>
@@ -191,18 +193,30 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, onMounted } from 'vue'
+import { useAuthStore } from '../../stores/auth'
+import { useRouter } from 'vue-router'
 
-const activeTab = ref('inicio');
-const isEditing = ref(false);
+const authStore = useAuthStore()
+const router = useRouter()
+
+// Redirect if not authenticated or not a client
+onMounted(() => {
+  if (!authStore.isAuthenticated || !authStore.isClient) {
+    router.push('/')
+  }
+})
+
+const activeTab = ref('inicio')
+const isEditing = ref(false)
 
 const userData = reactive({
-  nombre: 'Mario',
-  apellido: 'González',
-  telefono: '123-456-7890',
-  email: 'mario@ejemplo.com',
-  empresa: 'Empresa S.A. de C.V.'
-});
+  nombre: authStore.user?.name?.split(' ')[0] || 'Mario',
+  apellido: authStore.user?.name?.split(' ')[1] || 'González',
+  telefono: authStore.user?.phone || '123-456-7890',
+  email: authStore.user?.email || 'mario@ejemplo.com',
+  empresa: authStore.user?.company || 'Empresa S.A. de C.V.'
+})
 
 const planes = ref([
   {
@@ -229,42 +243,54 @@ const planes = ref([
     estado: 'Activo',
     fechaVencimiento: '01/12/2024'
   }
-]);
+])
 
 const toggleEdit = () => {
-  isEditing.value = true;
-};
+  isEditing.value = true
+}
 
 const cancelEdit = () => {
-  isEditing.value = false;
-};
+  isEditing.value = false
+  // Reset to original values
+  userData.nombre = authStore.user?.name?.split(' ')[0] || 'Mario'
+  userData.apellido = authStore.user?.name?.split(' ')[1] || 'González'
+  userData.telefono = authStore.user?.phone || '123-456-7890'
+  userData.email = authStore.user?.email || 'mario@ejemplo.com'
+  userData.empresa = authStore.user?.company || 'Empresa S.A. de C.V.'
+}
 
 const saveData = () => {
-  isEditing.value = false;
-  // Aquí iría la lógica para guardar los datos
-};
+  isEditing.value = false
+  // Here you would typically save to a backend
+  console.log('Saving user data:', userData)
+  alert('Datos guardados exitosamente')
+}
 
 const getStatusClass = (estado) => {
-  const baseClasses = 'badge rounded-pill';
+  const baseClasses = 'badge rounded-pill'
   switch (estado) {
     case 'Activo':
-      return `${baseClasses} bg-success`;
+      return `${baseClasses} bg-success`
     case 'Por vencer':
-      return `${baseClasses} bg-warning`;
+      return `${baseClasses} bg-warning`
     case 'Vencido':
-      return `${baseClasses} bg-danger`;
+      return `${baseClasses} bg-danger`
     default:
-      return baseClasses;
+      return baseClasses
   }
-};
+}
 
 const renovarPlan = (plan) => {
-  console.log('Renovar plan:', plan.nombre);
-};
+  console.log('Renovar plan:', plan.nombre)
+  alert(`Renovando plan: ${plan.nombre}`)
+}
 
 const cancelarPlan = (plan) => {
-  console.log('Cancelar plan:', plan.nombre);
-};
+  if (confirm(`¿Estás seguro de que quieres cancelar el plan: ${plan.nombre}?`)) {
+    console.log('Cancelar plan:', plan.nombre)
+    alert(`Plan cancelado: ${plan.nombre}`)
+  }
+}
 </script>
 
 <style scoped>
