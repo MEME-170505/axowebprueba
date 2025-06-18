@@ -7,7 +7,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import 'animate.css'
 import './style.css'
 
-// Importa las vistas
+// Import de vistas
 import Home from './views/Home.vue'
 import Services from './views/Services.vue'
 import About from './views/About.vue'
@@ -60,7 +60,7 @@ const router = createRouter({
 
 // Guarda de navegación
 router.beforeEach((to, from, next) => {
-  const authStore = useAuthStore() // ahora sí funciona porque ya existe pinia
+  const authStore = useAuthStore() 
 
   if (to.meta.requiresAuth) {
     if (!authStore.isAuthenticated) {

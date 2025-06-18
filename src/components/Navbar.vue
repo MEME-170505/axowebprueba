@@ -91,7 +91,7 @@
               <span>Mi Cuenta</span>
             </button>
             
-            <!-- User Dropdown when authenticated -->
+            <!-- usuario logueado -->
             <div v-else class="dropdown">
               <button 
                 class="btn btn-primary rounded-pill px-4 dropdown-toggle" 
