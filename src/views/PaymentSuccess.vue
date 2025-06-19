@@ -34,7 +34,7 @@
                         <i class="bi bi-credit-card detail-icon"></i>
                         <div>
                           <span class="detail-label">Método de Pago</span>
-                          <span class="detail-value">Tarjeta de Crédito</span>
+                          <span class="detail-value">Mercado Pago</span>
                         </div>
                       </div>
                     </div>
@@ -91,7 +91,7 @@
                       <div class="step-number">1</div>
                       <i class="bi bi-envelope-check step-icon"></i>
                       <h6>Confirmación</h6>
-                      <p>Recibirás un email con los detalles de tu compra</p>
+                      <p>Confirmaremos tu pago en breve</p>
                     </div>
                   </div>
                   <div class="col-md-4">

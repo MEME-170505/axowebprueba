@@ -125,7 +125,7 @@ const clients = ref([
   name: 'Bufin del Norte',
   logo: 'https://i.pinimg.com/736x/13/fb/65/13fb65def9e21e143aff6967029fd394.jpg',
   description: 'Consultora en comercio exterior y auditoría aduanera.',
-  link: 'https://bufindelnorte.com.mx',
+  link: 'https://bufinorte.com/',
 },
 {
   name: 'electrocopy',
@@ -137,7 +137,7 @@ const clients = ref([
   name: 'Dai',
   logo: 'https://i.pinimg.com/736x/33/f7/57/33f7578274c53bf6980a46b7a7e5c816.jpg',
   description: 'Despacho aduanal para facilitar importaciones y exportaciones.',
-  link: 'https://dai.mx',
+  link: 'https://elegant-mousse-a3d2e8.netlify.app/',
 },
 ]);
 
