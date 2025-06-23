@@ -176,6 +176,15 @@
       </div>
     </div>
 
+    <!-- Create Payment Modal -->
+    <CreatePaymentModal
+      v-if="showCreatePaymentModal"
+      :show="showCreatePaymentModal"
+      :companies="companies"
+      @close="showCreatePaymentModal = false"
+      @save="saveNewPayment"
+    />
+
     <!-- Payment Detail Modal -->
     <PaymentDetailModal
       v-if="showPaymentDetailModal"
@@ -200,6 +209,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import CreatePaymentModal from '../../../components/modals/CreatePaymentModal.vue';
 import PaymentDetailModal from '../../../components/modals/PaymentDetailModal.vue';
 import PaymentEditModal from '../../../components/modals/PaymentEditModal.vue';
 import { useAlert } from '../../../composables/useAlert';
@@ -207,6 +217,7 @@ import { useAlert } from '../../../composables/useAlert';
 const { showSuccess, showInfo, showWarning } = useAlert();
 
 const companySearchQuery = ref('');
+const showCreatePaymentModal = ref(false);
 const showPaymentDetailModal = ref(false);
 const showPaymentEditModal = ref(false);
 const selectedCompany = ref(null);
@@ -304,8 +315,14 @@ const openPaymentForm = () => {
     showWarning('Selecciona una empresa', 'Debes seleccionar una empresa antes de crear un pago');
     return;
   }
-  // Implementar apertura del formulario de pago
-  showInfo('Formulario de pago', 'Abriendo formulario para crear nuevo pago...');
+  showCreatePaymentModal.value = true;
+};
+
+const saveNewPayment = (paymentData) => {
+  // Agregar el pago a la lista
+  payments.value.push(paymentData);
+  showCreatePaymentModal.value = false;
+  showSuccess('Pago creado', `El pago para ${paymentData.userName} ha sido creado exitosamente`);
 };
 
 const viewPayment = (payment) => {
