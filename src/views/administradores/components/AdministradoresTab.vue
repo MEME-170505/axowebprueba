@@ -16,66 +16,11 @@
     </div>
 
     <!-- Administrators Table -->
-    <div class="admin-table">
-      <table class="table align-middle">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Apellido</th>
-            <th>Teléfono</th>
-            <th>Correo</th>
-            <th>Fecha de Creación</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(admin, index) in administrators" :key="index" class="slide-up">
-            <td>
-              <div class="d-flex align-items-center">
-                <div class="admin-avatar me-3">
-                  <i class="bi bi-person-circle"></i>
-                </div>
-                <strong>{{ admin.nombre }}</strong>
-              </div>
-            </td>
-            <td>{{ admin.apellido }}</td>
-            <td>
-              <span class="text-muted">
-                <i class="bi bi-telephone me-1"></i>
-                {{ admin.telefono }}
-              </span>
-            </td>
-            <td>
-              <span class="text-muted">
-                <i class="bi bi-envelope me-1"></i>
-                {{ admin.email }}
-              </span>
-            </td>
-            <td>
-              <span class="text-muted">{{ formatDate(admin.fechaCreacion) }}</span>
-            </td>
-            <td>
-              <div class="d-flex gap-2">
-                <button class="admin-btn admin-btn-outline btn-sm" @click="editAdmin(admin)">
-                  <i class="bi bi-pencil me-1"></i>
-                  Editar
-                </button>
-                <button class="admin-btn admin-btn-danger btn-sm" @click="deleteAdmin(index)">
-                  <i class="bi bi-trash me-1"></i>
-                  Eliminar
-                </button>
-              </div>
-            </td>
-          </tr>
-          <tr v-if="administrators.length === 0">
-            <td colspan="6" class="text-center py-4 text-muted">
-              <i class="bi bi-inbox me-2"></i>
-              No hay administradores registrados
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <TablaAdministradores
+      :administradores="administradoresStore.administradores"
+      @edit="editAdmin"
+      @delete="deleteAdmin"
+    />
 
     <!-- Admin Modal -->
     <AdminModal 
@@ -87,68 +32,116 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import AdminModal from '../../../components/modals/AdminModal.vue';
-import { useAlert } from '../../../composables/useAlert';
+import { ref } from 'vue'
+import { useAdministradoresStore } from '../../../stores/administradores'
+import AdminModal from '../../../components/modals/AdminModal.vue'
+import TablaAdministradores from '../../../components/admin/TablaAdministradores.vue'
+import { useAlert } from '../../../composables/useAlert'
 
-const { showSuccess, showConfirm } = useAlert();
+const { showSuccess, showConfirm } = useAlert()
 
-const showAdminModal = ref(false);
-const administrators = ref([
-  {
-    nombre: 'Admin',
-    apellido: 'Principal',
-    telefono: '555-0001',
-    email: 'admin@axoweb.com',
-    fechaCreacion: '2024-01-01'
-  }
-]);
+const administradoresStore = useAdministradoresStore()
+const showAdminModal = ref(false)
 
 const saveAdmin = (adminData) => {
-  const newAdmin = {
-    ...adminData,
-    fechaCreacion: new Date().toISOString().split('T')[0]
-  };
-  administrators.value.push(newAdmin);
-  showSuccess('Administrador creado', `Se ha creado la cuenta para ${adminData.nombre} ${adminData.apellido}`);
-};
+  administradoresStore.agregarAdministrador(adminData)
+  showSuccess('Administrador creado', `Se ha creado la cuenta para ${adminData.nombre} ${adminData.apellido}`)
+}
 
 const editAdmin = (admin) => {
-  console.log('Editando administrador:', admin);
+  console.log('Editando administrador:', admin)
   // Implementar lógica de edición
-};
+}
 
-const deleteAdmin = async (index) => {
-  const admin = administrators.value[index];
+const deleteAdmin = async (admin) => {
   const confirmed = await showConfirm(
     '¿Eliminar administrador?',
     `¿Estás seguro de que quieres eliminar la cuenta de ${admin.nombre} ${admin.apellido}? Esta acción no se puede deshacer.`,
     () => {
-      administrators.value.splice(index, 1);
-      showSuccess('Administrador eliminado', 'La cuenta ha sido eliminada exitosamente');
+      administradoresStore.eliminarAdministrador(admin.id)
+      showSuccess('Administrador eliminado', 'La cuenta ha sido eliminada exitosamente')
     },
     () => {
       // Cancelado
     }
-  );
-};
-
-const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('es-MX');
-};
+  )
+}
 </script>
 
 <style scoped>
-.admin-avatar {
-  width: 40px;
-  height: 40px;
+.action-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 2px solid #e9ecef;
+  transition: all 0.3s ease;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.action-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  border-color: var(--primary-coral);
+}
+
+.action-icon {
+  width: 70px;
+  height: 70px;
   background: linear-gradient(135deg, var(--primary-coral) 0%, #d73c26 100%);
-  border-radius: 50%;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.action-content {
+  flex: 1;
+}
+
+.action-title {
+  color: var(--primary-blue);
+  font-weight: 700;
+  margin-bottom: 0.5rem;
   font-size: 1.25rem;
+}
+
+.action-description {
+  color: #666;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.admin-btn {
+  border-radius: 25px;
+  padding: 10px 20px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.admin-btn-primary {
+  background: linear-gradient(135deg, var(--primary-coral) 0%, #d73c26 100%);
+  color: white;
+  border-color: var(--primary-coral);
+}
+
+.admin-btn-primary:hover {
+  background: linear-gradient(135deg, #d73c26 0%, #c23321 100%);
+  color: white;
 }
 </style>

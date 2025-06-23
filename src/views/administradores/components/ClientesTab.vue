@@ -31,115 +31,60 @@
     </div>
 
     <!-- Clients Table -->
-    <div class="admin-table">
-      <table class="table align-middle">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Plan del Cliente</th>
-            <th>Inicio</th>
-            <th>Fin</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(client, index) in filteredClients" :key="index" class="slide-up">
-            <td>
-              <input 
-                type="text" 
-                class="admin-form-control"
-                v-model="client.name"
-              >
-            </td>
-            <td>
-              <input 
-                type="text" 
-                class="admin-form-control"
-                v-model="client.plan"
-              >
-            </td>
-            <td>
-              <input 
-                type="date" 
-                class="admin-form-control"
-                v-model="client.startDate"
-              >
-            </td>
-            <td>
-              <input 
-                type="date" 
-                class="admin-form-control"
-                v-model="client.endDate"
-              >
-            </td>
-            <td>
-              <select 
-                class="form-select admin-form-control"
-                v-model="client.status"
-              >
-                <option value="activo">Activo</option>
-                <option value="inactivo">Inactivo</option>
-                <option value="pendiente">Pendiente</option>
-              </select>
-            </td>
-            <td>
-              <button class="admin-btn admin-btn-primary" @click="saveClient(client)">
-                <i class="bi bi-save me-1"></i>
-                Guardar
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <TablaClientes
+      :clientes-filtrados="clientesFiltrados"
+      @save="saveClient"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { useAlert } from '../../../composables/useAlert';
+import { ref, computed } from 'vue'
+import { useClientesStore } from '../../../stores/clientes'
+import TablaClientes from '../../../components/admin/TablaClientes.vue'
+import { useAlert } from '../../../composables/useAlert'
 
-const { showSuccess } = useAlert();
+const { showSuccess } = useAlert()
 
-const searchQuery = ref('');
-const statusFilter = ref('');
+const clientesStore = useClientesStore()
+const searchQuery = ref('')
+const statusFilter = ref('')
 
-const clients = ref([
-  {
-    name: 'Juan Pérez',
-    plan: 'Premium',
-    startDate: '2024-01-01',
-    endDate: '2024-12-31',
-    status: 'activo'
-  },
-  {
-    name: 'María García',
-    plan: 'Básico',
-    startDate: '2024-02-01',
-    endDate: '2024-08-01',
-    status: 'pendiente'
-  },
-  {
-    name: 'Carlos López',
-    plan: 'Profesional',
-    startDate: '2024-03-01',
-    endDate: '2025-03-01',
-    status: 'activo'
-  }
-]);
+const clientesFiltrados = computed(() => {
+  return clientesStore.clientes.filter(cliente => {
+    const matchesSearch = cliente.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+                         cliente.plan.toLowerCase().includes(searchQuery.value.toLowerCase())
+    const matchesStatus = !statusFilter.value || cliente.status === statusFilter.value
+    return matchesSearch && matchesStatus
+  })
+})
 
-const filteredClients = computed(() => {
-  return clients.value.filter(client => {
-    const matchesSearch = client.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-                         client.plan.toLowerCase().includes(searchQuery.value.toLowerCase());
-    const matchesStatus = !statusFilter.value || client.status === statusFilter.value;
-    return matchesSearch && matchesStatus;
-  });
-});
-
-const saveClient = (client) => {
-  console.log('Guardando cliente:', client);
-  showSuccess('Cliente guardado', `Los datos de ${client.name} han sido actualizados`);
-};
+const saveClient = (cliente) => {
+  clientesStore.actualizarCliente(cliente.id, cliente)
+  showSuccess('Cliente guardado', `Los datos de ${cliente.name} han sido actualizados`)
+}
 </script>
+
+<style scoped>
+.search-container {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+}
+
+.search-input {
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 25px;
+  padding: 12px 20px;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  border-color: var(--primary-coral);
+  box-shadow: 0 0 0 0.25rem rgba(233, 79, 55, 0.15);
+  background: white;
+}
+</style>

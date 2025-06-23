@@ -58,7 +58,7 @@
                   >
                     <option value="">Seleccionar empresa</option>
                     <option 
-                      v-for="company in companies" 
+                      v-for="company in empresasStore.empresas" 
                       :key="company.id" 
                       :value="company.id"
                     >
@@ -131,16 +131,22 @@
                   >
                     <option value="">Seleccionar plan o servicio</option>
                     <optgroup v-if="form.serviceType === 'predefinido'" label="Planes Predefinidos">
-                      <option value="Plan Huevo">Plan Huevo - $15,000</option>
-                      <option value="Plan Ajolote">Plan Ajolote - $25,000</option>
-                      <option value="Plan Alebrije">Plan Alebrije - Personalizado</option>
+                      <option 
+                        v-for="plan in serviciosStore.planes" 
+                        :key="plan.id" 
+                        :value="plan.nombre"
+                      >
+                        {{ plan.nombre }} - {{ plan.precioTexto }}
+                      </option>
                     </optgroup>
                     <optgroup v-if="form.serviceType === 'predefinido'" label="Servicios Individuales">
-                      <option value="Desarrollo de Ecommerce">Desarrollo de Ecommerce - $8,000</option>
-                      <option value="Email Marketing">Email Marketing - $5,000</option>
-                      <option value="Marketing Digital">Marketing Digital - $8,000</option>
-                      <option value="Diseño UI/UX">Diseño UI/UX - $8,000</option>
-                      <option value="Automatización">Automatización - $8,000</option>
+                      <option 
+                        v-for="servicio in serviciosStore.serviciosIndividuales" 
+                        :key="servicio.id" 
+                        :value="servicio.title"
+                      >
+                        {{ servicio.title }} - {{ servicio.price }}
+                      </option>
                     </optgroup>
                     <option v-if="form.serviceType === 'personalizado'" value="Servicio Personalizado">
                       Servicio Personalizado
@@ -284,21 +290,18 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, defineProps, defineEmits } from 'vue';
+import { ref, computed, watch } from 'vue'
+import { useEmpresasStore } from '../../stores/empresas'
+import { useServiciosStore } from '../../stores/servicios'
 
 const props = defineProps({
-  show: Boolean,
-  companies: {
-    type: Array,
-    default: () => [
-      { id: 1, name: 'Electrocopy', client: 'Juan Pérez' },
-      { id: 2, name: 'DAI', client: 'María García' },
-      { id: 3, name: 'Bufin del Norte', client: 'Carlos López' }
-    ]
-  }
-});
+  show: Boolean
+})
 
-const emit = defineEmits(['close', 'save']);
+const emit = defineEmits(['close', 'save'])
+
+const empresasStore = useEmpresasStore()
+const serviciosStore = useServiciosStore()
 
 const form = ref({
   userName: '',
@@ -311,93 +314,93 @@ const form = ref({
   totalAmount: 0,
   paidAmount: 0,
   notes: ''
-});
-
-// Precios predefinidos
-const predefinedPrices = {
-  'Plan Huevo': 15000,
-  'Plan Ajolote': 25000,
-  'Plan Alebrije': 0, // Personalizado
-  'Desarrollo de Ecommerce': 8000,
-  'Email Marketing': 5000,
-  'Marketing Digital': 8000,
-  'Diseño UI/UX': 8000,
-  'Automatización': 8000
-};
+})
 
 const pendingAmount = computed(() => {
-  return Math.max(0, (form.value.totalAmount || 0) - (form.value.paidAmount || 0));
-});
+  return Math.max(0, (form.value.totalAmount || 0) - (form.value.paidAmount || 0))
+})
 
 const updateCompanyInfo = () => {
-  const selectedCompany = props.companies.find(c => c.id === form.value.companyId);
+  const selectedCompany = empresasStore.empresas.find(c => c.id === form.value.companyId)
   if (selectedCompany) {
-    form.value.client = selectedCompany.client;
+    form.value.client = selectedCompany.client
   }
-};
+}
 
 const updateServicePrice = () => {
-  const selectedService = form.value.planService;
-  if (selectedService && predefinedPrices[selectedService] !== undefined) {
-    form.value.totalAmount = predefinedPrices[selectedService];
+  const selectedService = form.value.planService
+  
+  // Buscar en planes
+  const plan = serviciosStore.planes.find(p => p.nombre === selectedService)
+  if (plan && plan.precio > 0) {
+    form.value.totalAmount = plan.precio
+    return
   }
-};
+  
+  // Buscar en servicios individuales
+  const servicio = serviciosStore.serviciosIndividuales.find(s => s.title === selectedService)
+  if (servicio && servicio.precio > 0) {
+    form.value.totalAmount = servicio.precio
+    return
+  }
+  
+  // Si es personalizado o no tiene precio, no cambiar el monto
+}
 
 const resetServiceSelection = () => {
-  form.value.planService = '';
-  form.value.totalAmount = 0;
-  form.value.paidAmount = 0;
-};
+  form.value.planService = ''
+  form.value.totalAmount = 0
+  form.value.paidAmount = 0
+}
 
 const setPaymentStatus = (action) => {
   if (action === 'liquidar') {
-    form.value.paidAmount = form.value.totalAmount;
+    form.value.paidAmount = form.value.totalAmount
   } else if (action === 'abono') {
     // Mantener el valor actual del abono
   }
-};
+}
 
 const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('es-MX').format(amount || 0);
-};
+  return new Intl.NumberFormat('es-MX').format(amount || 0)
+}
 
 const handleSubmit = () => {
   // Validaciones
   if (!form.value.userName) {
-    alert('Por favor ingresa el nombre del usuario');
-    return;
+    alert('Por favor ingresa el nombre del usuario')
+    return
   }
 
   if (!form.value.companyId) {
-    alert('Por favor selecciona una empresa');
-    return;
+    alert('Por favor selecciona una empresa')
+    return
   }
 
   if (!form.value.planService) {
-    alert('Por favor selecciona un plan o servicio');
-    return;
+    alert('Por favor selecciona un plan o servicio')
+    return
   }
 
   if (!form.value.totalAmount || form.value.totalAmount <= 0) {
-    alert('Por favor ingresa un monto total válido');
-    return;
+    alert('Por favor ingresa un monto total válido')
+    return
   }
 
   if (form.value.paidAmount > form.value.totalAmount) {
-    alert('El monto abonado no puede ser mayor al monto total');
-    return;
+    alert('El monto abonado no puede ser mayor al monto total')
+    return
   }
 
   // Determinar el estado del pago
-  let status = 'Pendiente';
+  let status = 'Pendiente'
   if (form.value.paidAmount === form.value.totalAmount) {
-    status = 'Liquidado';
+    status = 'Liquidado'
   } else if (form.value.paidAmount > 0) {
-    status = 'Abono';
+    status = 'Abono'
   }
 
   const paymentData = {
-    id: Date.now(), // ID temporal
     userName: form.value.userName,
     contractDate: form.value.contractDate,
     companyId: form.value.companyId,
@@ -412,11 +415,11 @@ const handleSubmit = () => {
     purchaseId: 'TXN' + Math.random().toString(36).substr(2, 9).toUpperCase(),
     notes: form.value.notes,
     serviceType: form.value.serviceType
-  };
+  }
 
-  emit('save', paymentData);
-  resetForm();
-};
+  emit('save', paymentData)
+  resetForm()
+}
 
 const resetForm = () => {
   form.value = {
@@ -430,15 +433,15 @@ const resetForm = () => {
     totalAmount: 0,
     paidAmount: 0,
     notes: ''
-  };
-};
+  }
+}
 
 // Watch para resetear el formulario cuando se cierre el modal
 watch(() => props.show, (newValue) => {
   if (!newValue) {
-    resetForm();
+    resetForm()
   }
-});
+})
 </script>
 
 <style scoped>
